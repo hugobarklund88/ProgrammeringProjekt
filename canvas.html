@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1 id="menu">Välkommen till test <br>
+<button onclick="startGame()">Starta</button>
+</h1>
+
+<canvas id="game" width="400" height="300" style="display:none;"></canvas>
+
+<script>
+function startGame() {
+  document.getElementById("menu").style.display = "none";
+
+  let canvas = document.getElementById("game");
+  canvas.style.display = "block";
+
+  let ctx = canvas.getContext("2d");
+  ctx.fillText("Spelet har startat!", 100, 150);
+}
+</script>
+
+</body>
+</html>
