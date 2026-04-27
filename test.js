@@ -41,7 +41,11 @@ const player = {
     x: 150,
     y: 150,
     size: 100,
-    speed: 4
+    vx: 0,          // Velocity X
+    vy: 0,          // Velocity Y
+    maxSpeed: 6,    // Max speed limit
+    accel: 0.2,     // How fast you speed up
+    friction: 0.95  // 0.95 means it keeps 95% of speed every frame (slows down)
 };
 
 const keys = {};
@@ -67,24 +71,43 @@ function isWalkable(x, y) {
 }
 
 function update() {
-    let nextX = player.x;
-    let nextY = player.y;
+    // acceleration
+    if (keys["ArrowUp"])    player.vy -= player.accel;
+    if (keys["ArrowDown"])  player.vy += player.accel;
+    if (keys["ArrowLeft"])  player.vx -= player.accel;
+    if (keys["ArrowRight"]) player.vx += player.accel;
 
-    if (keys["ArrowUp"])    nextY -= player.speed;
-    if (keys["ArrowDown"])  nextY += player.speed;
-    if (keys["ArrowLeft"])  nextX -= player.speed;
-    if (keys["ArrowRight"]) nextX += player.speed;
+    // 2. friction
+    player.vx *= player.friction;
+    player.vy *= player.friction;
 
-    // Krockhantering (kolla alla hörn av spelaren)
-    let p = player.size / 2;
+    // 3. CLAMP SPEED (Don't go faster than maxSpeed)
+    const currentTotalSpeed = Math.sqrt(player.vx**2 + player.vy**2);
+    if (currentTotalSpeed > player.maxSpeed) {
+        let ratio = player.maxSpeed / currentTotalSpeed;
+        player.vx *= ratio;
+        player.vy *= ratio;
+    }
+
+    // 4. PREDICT NEXT POSITION
+    let nextX = player.x + player.vx;
+    let nextY = player.y + player.vy;
+
+    // 5. COLLISION HANDLING
+    let p = player.size / 4; // Using a smaller collision box (p) often feels better
     if (isWalkable(nextX - p, nextY - p) && 
         isWalkable(nextX + p, nextY - p) && 
         isWalkable(nextX - p, nextY + p) && 
         isWalkable(nextX + p, nextY + p)) {
         player.x = nextX;
         player.y = nextY;
+    } else {
+        // Optional: Stop movement if you hit a wall
+        player.vx = 0;
+        player.vy = 0;
     }
 }
+
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -104,10 +127,10 @@ function draw() {
     for(let y = 0; y < map.length; y++) {
         for(let x = 0; x < map[y].length; x++) {
             if(map[y][x] === 1) {
-                ctx.fillStyle = "#4a2e00"; // Vägg
+                ctx.fillStyle = "#ff0000"; // Vägg
                 ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
             } else {
-                ctx.fillStyle = "#2d5a27"; // Gräs
+                ctx.fillStyle = "#000000"; // Gräs
                 ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
             }
         }
