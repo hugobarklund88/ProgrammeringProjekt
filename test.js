@@ -1,142 +1,234 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// INSTÄLLNINGAR
-const tileSize = 40;
-const screenWidth = 500; 
-const screenHeight = 200;
-canvas.width = screenWidth;
-canvas.height = screenHeight;
+// SETTINGS
+const tileSize = 80; 
 
-// KARTAN (1 = Vägg, 0 = Golv)
-// En 15x15 karta där 1:orna isolerar spelaren (skapar barriärer)
-const map = [
-    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
-    [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
-    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0]
+// THE ROAD (1 = Barrier, 0 = Road)
+const roadMap = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1], 
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1]  
 ];
 
+const roadHeight = roadMap.length * tileSize; 
+let roadYOffset = 0; 
+
+// IMAGES
 const playerImg = new Image();
-playerImg.src = 'motorbro.png'; // Här skriver du namnet på din bildfil
+playerImg.src = 'motorbrobro.png'; 
 
+const coneImg = new Image();
+coneImg.src = 'trafficcone.png'; 
 
+const spikeImg = new Image();
+spikeImg.src = 'trafficcone.png'; 
+
+// Spelarens inställningar (Större och snabbare!)
 const player = {
-    x: 150,
-    y: 150,
-    size: 100,
-    vx: 0,          // Velocity X
-    vy: 0,          // Velocity Y
-    maxSpeed: 6,    // Max speed limit
-    accel: 0.2,     // How fast you speed up
-    friction: 0.95  // 0.95 means it keeps 95% of speed every frame (slows down)
+    x: 150,            
+    y: 0,              
+    size: 140,         
+    vy: 0,             
+    speed: 16,         
+    accel: 1.8,        
+    friction: 0.85     
 };
 
+// Hinder och timers
+let obstacles = [];
+let spawnTimer = 0;
+let nextSpawnTime = Math.random() * 100 + 50; 
+
+let isGameOver = false;
+let roadOffsetX = 0; // Denna används nu för att flytta linjerna mjukt
 const keys = {};
 
-// LYSSNA PÅ TANGENTER
 window.addEventListener("keydown", (e) => {
-    keys[e.key] = true;
-    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) e.preventDefault();
-});
-window.addEventListener("keyup", (e) => {
-    keys[e.key] = false;
+    if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        if (isGameOver) {
+            resetGame();
+        }
+    }
+    
+    keys[e.key.toLowerCase()] = true;
+    if(["w", "s", "arrowup", "arrowdown"].includes(e.key.toLowerCase())) e.preventDefault();
 });
 
-// FUNKTION FÖR ATT KOLLA VÄGGAR
-function isWalkable(x, y) {
-    let gridX = Math.floor(x / tileSize);
-    let gridY = Math.floor(y / tileSize);
+window.addEventListener("keyup", (e) => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+function resetGame() {
+    obstacles = [];
+    spawnTimer = 0;
+    nextSpawnTime = Math.random() * 40 + 30;
+    player.speed = 16; 
+    player.y = canvas.height / 2;
+    player.vy = 0;
+    roadOffsetX = 0; 
+    isGameOver = false;
+}
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    roadYOffset = (canvas.height / 2) - (roadHeight / 2);
+    if (!isGameOver) {
+        player.y = canvas.height / 2;
+    }
+}
+resizeCanvas(); 
+window.addEventListener('resize', resizeCanvas);
+
+function canMoveTo(y) {
+    let p = player.size / 4; 
+    let relativeTop = y - p - roadYOffset;
+    let relativeBottom = y + p - roadYOffset;
     
-    // Utanför kartan = inte gåbart
-    if (gridY < 0 || gridY >= map.length || gridX < 0 || gridX >= map[0].length) return false;
-    // Returnera sant om det är en nolla (golv)
-    return map[gridY][gridX] === 0;
+    let gridYTop = Math.floor(relativeTop / tileSize);
+    let gridYBottom = Math.floor(relativeBottom / tileSize);
+    
+    if (gridYTop < 0 || gridYBottom >= roadMap.length) return false;
+    if (roadMap[gridYTop][0] === 1 || roadMap[gridYBottom][0] === 1) return false;
+    
+    return true;
+}
+
+function spawnObstacle() {
+    const playableRows = [1, 2, 3, 4, 5, 6];
+    const randomRow = playableRows[Math.floor(Math.random() * playableRows.length)];
+    const imgType = Math.random() > 0.5 ? coneImg : spikeImg;
+
+    const newObstacle = {
+        x: canvas.width + tileSize, 
+        y: roadYOffset + (randomRow * tileSize) + (tileSize / 2), 
+        size: 80, 
+        image: imgType
+    };
+
+    obstacles.push(newObstacle);
+}
+
+function checkCollision(rect1, rect2) {
+    return rect1.x < rect2.x + rect2.size &&
+           rect1.x + rect1.size > rect2.x &&
+           rect1.y < rect2.y + rect2.size &&
+           rect1.y + rect1.size > rect2.y;
 }
 
 function update() {
-    // acceleration
-    if (keys["ArrowUp"])    player.vy -= player.accel;
-    if (keys["ArrowDown"])  player.vy += player.accel;
-    if (keys["ArrowLeft"])  player.vx -= player.accel;
-    if (keys["ArrowRight"]) player.vx += player.accel;
+    if (isGameOver) return;
 
-    // 2. friction
-    player.vx *= player.friction;
+    // Flytta vägpositionen
+    roadOffsetX += player.speed;
+
+    // Styrning
+    if (keys["w"]) player.vy -= player.accel;
+    if (keys["s"]) player.vy += player.accel;
     player.vy *= player.friction;
 
-    // 3. CLAMP SPEED (Don't go faster than maxSpeed)
-    const currentTotalSpeed = Math.sqrt(player.vx**2 + player.vy**2);
-    if (currentTotalSpeed > player.maxSpeed) {
-        let ratio = player.maxSpeed / currentTotalSpeed;
-        player.vx *= ratio;
-        player.vy *= ratio;
-    }
-
-    // 4. PREDICT NEXT POSITION
-    let nextX = player.x + player.vx;
     let nextY = player.y + player.vy;
-
-    // 5. COLLISION HANDLING
-    let p = player.size / 4; // Using a smaller collision box (p) often feels better
-    if (isWalkable(nextX - p, nextY - p) && 
-        isWalkable(nextX + p, nextY - p) && 
-        isWalkable(nextX - p, nextY + p) && 
-        isWalkable(nextX + p, nextY + p)) {
-        player.x = nextX;
+    if (canMoveTo(nextY)) {
         player.y = nextY;
     } else {
-        // Optional: Stop movement if you hit a wall
-        player.vx = 0;
-        player.vy = 0;
+        player.vy = 0; 
+    }
+
+    // Spawn-logik för hinder
+    spawnTimer++;
+    if (spawnTimer >= nextSpawnTime) {
+        spawnObstacle();
+        
+        if (Math.random() > 0.5) {
+            spawnObstacle();
+        }
+        
+        if (Math.random() > 0.75) {
+            spawnObstacle();
+        }
+
+        spawnTimer = 0;
+        nextSpawnTime = Math.random() * 40 + 30; 
+    }
+
+    // Flytta hinder och kolla krockar
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        let obs = obstacles[i];
+        obs.x -= player.speed;
+
+        let playerBox = { x: player.x - player.size/4, y: player.y - player.size/4, size: player.size/2 };
+        let obstacleBox = { x: obs.x - obs.size/2, y: obs.y - obs.size/2, size: obs.size };
+
+        if (checkCollision(playerBox, obstacleBox)) {
+            player.vy = 0;
+            player.speed = 0; 
+            isGameOver = true; 
+            return;
+        }
+
+        if (obs.x < -obs.size) {
+            obstacles.splice(i, 1);
+        }
     }
 }
 
-
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // 1. Bakgrund
+    ctx.fillStyle = "#222";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // KAMERA (Håller spelaren i mitten)
-    let camX = player.x - screenWidth / 2;
-    let camY = player.y - screenHeight / 2;
-    
-    // Begränsa kameran till mappen
-    camX = Math.max(0, Math.min(camX, map[0].length * tileSize - screenWidth));
-    camY = Math.max(0, Math.min(camY, map.length * tileSize - screenHeight));
+    // 2. Rita asfalten och barriärernas basfärg
+    for (let y = 0; y < roadMap.length; y++) {
+        let drawY = (y * tileSize) + roadYOffset;
+        if (roadMap[y][0] === 1) {
+            ctx.fillStyle = "#333232"; 
+        } else {
+            ctx.fillStyle = "#000000"; 
+        }
+        ctx.fillRect(0, drawY, canvas.width, tileSize);
+    }
 
-    ctx.save();
-    ctx.translate(-camX, -camY);
+    // 3. Rita linjerna (Nu med rätt variabel så det inte kraschar)
+    let lineLength = tileSize; 
+    let numLines = Math.ceil(canvas.width / lineLength) + 2;
+    let lineOffsetX = roadOffsetX % (lineLength * 2);
 
-    // RITA KARTAN
-    for(let y = 0; y < map.length; y++) {
-        for(let x = 0; x < map[y].length; x++) {
-            if(map[y][x] === 1) {
-                ctx.fillStyle = "#ff0000"; // Vägg
-                ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-            } else {
-                ctx.fillStyle = "#000000"; // Gräs
-                ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-            }
+    for (let i = -2; i < numLines; i++) {
+        let drawX = i * lineLength - lineOffsetX;
+
+        // Röda och vita kantlinjer
+        let barrierColor = (Math.abs(i) % 2 === 0) ? "#FF0000" : "#FFFFFF";
+        ctx.fillStyle = barrierColor;
+        
+        ctx.fillRect(drawX, roadYOffset + tileSize - 10, lineLength, 10);
+        ctx.fillRect(drawX, roadYOffset + (7 * tileSize), lineLength, 10);
+
+        // Vita mittlinjer
+        if (Math.abs(i) % 2 === 0) {
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(drawX, roadYOffset + (4 * tileSize) - 3, lineLength / 1.5, 6);
         }
     }
 
-    // RITA SPELAREN
+    // 4. Rita hindren
+    for (let obs of obstacles) {
+        ctx.drawImage(
+            obs.image,
+            obs.x - obs.size / 2,
+            obs.y - obs.size / 2,
+            obs.size,
+            obs.size
+        );
+    }
+
+    // 5. Rita spelaren
     ctx.drawImage(
         playerImg, 
         player.x - player.size / 2, 
@@ -145,9 +237,21 @@ function draw() {
         player.size
     );
 
-    ctx.restore();
-}
+    // 6. Game Over-skärm
+    if (isGameOver) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#FF0000";
+        ctx.font = "bold 50px sans-serif";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
+        
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "24px sans-serif";
+        ctx.fillText("Tryck SPACE för att försöka igen", canvas.width / 2, canvas.height / 2 + 40);
+    }
+}
 
 function gameLoop() {
     update();

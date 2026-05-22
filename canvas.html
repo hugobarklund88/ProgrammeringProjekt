@@ -1,51 +1,30 @@
 <!DOCTYPE html>
-<html>
-<body>
-
-<h1 id="menu">Välkommen till test1! <br>
-<button onclick="startGame()">Starta test1</button>
-</h1>
-
-<canvas id="game" width="400" height="300" style="display:none;"></canvas>
-
-<script>
-function startGame() {
-  document.getElementById("menu").style.display = "none";
-
-  let canvas = document.getElementById("game");
-  canvas.style.display = "block";
-
-  let ctx = canvas.getContext("2d");
-  ctx.fillText("Spelet har startat!", 100, 150);
-}
-</script>
-
-</body>
-</html>
-
-<!DOCTYPE html>
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>Speedway Moto Race</title>
+    <title>Speedway Moto Race - Fullscreen</title>
     <style>
-        body {
-            background: #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        * {
+            box-sizing: border-box;
+        }
+        body, html {
             margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Döljer scroll-lister */
+            background: #11581b;
         }
         canvas {
-            border: 4px solid #fff;
-            background: #000;
+            display: block; /* Tar bort dolda marginaler i botten */
+            width: 100vw;   /* 100% av skärmens bredd */
+            height: 100vh;  /* 100% av skärmens höjd */
+            background: #11581b;
         }
     </style>
 </head>
 <body>
 
-    <!-- Tabindex gör att canvasen kan fånga upp tangenttryck direkt -->
     <canvas id="gameCanvas" tabindex="1"></canvas>
 
     <script src="test.js"></script>
