@@ -1,3 +1,20 @@
+// AUDIO SETTINGS
+const bgMusic = new Audio('kevin.mp3');
+bgMusic.loop = true;       // Gör att musiken startar om automatisk när den tar slut
+bgMusic.volume = 0.5;      // Sänker volymen till hälften så det inte spränger öronen
+
+const crashSound = new Audio('preview.mp3');
+crashSound.volume = 0.7;
+
+// Starta om musiken och återställ krockljudet
+    crashSound.pause();
+    crashSound.currentTime = 0;
+    bgMusic.currentTime = 0; // Startar om låten från början (valfritt, ta bort om du vill att den fortsätter)
+    bgMusic.play();
+
+// En variabel för att hålla koll på om musiken har startat (webbläsare kräver ett knapptryck först)
+let musicStarted = false;
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -33,7 +50,7 @@ spikeImg.src = 'trafficcone.png';
 const player = {
     x: 150,            
     y: 0,              
-    size: 140,         
+    size: 90,         
     vy: 0,             
     speed: 16,         
     accel: 1.8,        
@@ -50,10 +67,18 @@ let roadOffsetX = 0; // Denna används nu för att flytta linjerna mjukt
 const keys = {};
 
 window.addEventListener("keydown", (e) => {
+    // Starta bakgrundsmusiken på första bästa knapptryck om den inte redan körs
+    if (!musicStarted && !isGameOver) {
+        bgMusic.play().catch(err => console.log("Musik blockerad av webbläsaren än så länge"));
+        musicStarted = true;
+    }
+
+    // Starta om med SPACE (Mellanslag) om man har krockat
     if (e.key === " " || e.code === "Space") {
         e.preventDefault();
         if (isGameOver) {
             resetGame();
+            score = 0; // Nollställ poängen vid omstart
         }
     }
     
