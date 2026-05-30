@@ -1,27 +1,27 @@
 // AUDIO SETTINGS
 const bgMusic = new Audio('kevin.mp3');
-bgMusic.loop = true;       // Gör att musiken startar om automatisk när den tar slut
-bgMusic.volume = 0.5;      // Sänker volymen till hälften så det inte spränger öronen
+bgMusic.loop = true;     
+bgMusic.volume = 0.5;      
 
 const crashSound = new Audio('preview.mp3');
 crashSound.volume = 0.7;
 
-// Starta om musiken och återställ krockljudet
+// musik
     crashSound.pause();
     crashSound.currentTime = 0;
     bgMusic.currentTime = 0; // Startar om låten från början (valfritt, ta bort om du vill att den fortsätter)
     bgMusic.play();
 
-// En variabel för att hålla koll på om musiken har startat (webbläsare kräver ett knapptryck först)
+// musik 2
 let musicStarted = false;
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// SETTINGS
+// inställningar
 const tileSize = 80; 
 
-// THE ROAD (1 = Barrier, 0 = Road)
+// väg
 const roadMap = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1], 
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -36,7 +36,7 @@ const roadMap = [
 const roadHeight = roadMap.length * tileSize; 
 let roadYOffset = 0; 
 
-// IMAGES
+// bilder
 const playerImg = new Image();
 playerImg.src = 'motorbrobro.png'; 
 
@@ -46,7 +46,7 @@ coneImg.src = 'trafficcone.png';
 const spikeImg = new Image();
 spikeImg.src = 'trafficcone.png'; 
 
-// Spelarens inställningar (Större och snabbare!)
+// inställningar
 const player = {
     x: 150,            
     y: 0,              
@@ -57,28 +57,28 @@ const player = {
     friction: 0.85     
 };
 
-// Hinder och timers
+// hinder
 let obstacles = [];
 let spawnTimer = 0;
 let nextSpawnTime = Math.random() * 100 + 50; 
 
 let isGameOver = false;
-let roadOffsetX = 0; // Denna används nu för att flytta linjerna mjukt
+let roadOffsetX = 0; 
 const keys = {};
 
 window.addEventListener("keydown", (e) => {
-    // Starta bakgrundsmusiken på första bästa knapptryck om den inte redan körs
+    // Starta bakgrundsmusik
     if (!musicStarted && !isGameOver) {
         bgMusic.play().catch(err => console.log("Musik blockerad av webbläsaren än så länge"));
         musicStarted = true;
     }
 
-    // Starta om med SPACE (Mellanslag) om man har krockat
+    // starta om
     if (e.key === " " || e.code === "Space") {
         e.preventDefault();
         if (isGameOver) {
             resetGame();
-            score = 0; // Nollställ poängen vid omstart
+            score = 0; 
         }
     }
     
@@ -151,10 +151,10 @@ function checkCollision(rect1, rect2) {
 function update() {
     if (isGameOver) return;
 
-    // Flytta vägpositionen
+    // flytta vägposition
     roadOffsetX += player.speed;
 
-    // Styrning
+    // styrning
     if (keys["w"]) player.vy -= player.accel;
     if (keys["s"]) player.vy += player.accel;
     player.vy *= player.friction;
@@ -166,7 +166,7 @@ function update() {
         player.vy = 0; 
     }
 
-    // Spawn-logik för hinder
+    // spawn logik
     spawnTimer++;
     if (spawnTimer >= nextSpawnTime) {
         spawnObstacle();
@@ -183,7 +183,7 @@ function update() {
         nextSpawnTime = Math.random() * 40 + 30; 
     }
 
-    // Flytta hinder och kolla krockar
+    // krockar
     for (let i = obstacles.length - 1; i >= 0; i--) {
         let obs = obstacles[i];
         obs.x -= player.speed;
@@ -209,7 +209,7 @@ function draw() {
     ctx.fillStyle = "#222";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 2. Rita asfalten och barriärernas basfärg
+    // 2. ritning
     for (let y = 0; y < roadMap.length; y++) {
         let drawY = (y * tileSize) + roadYOffset;
         if (roadMap[y][0] === 1) {
@@ -220,7 +220,7 @@ function draw() {
         ctx.fillRect(0, drawY, canvas.width, tileSize);
     }
 
-    // 3. Rita linjerna (Nu med rätt variabel så det inte kraschar)
+    // 3. ritning av linjer
     let lineLength = tileSize; 
     let numLines = Math.ceil(canvas.width / lineLength) + 2;
     let lineOffsetX = roadOffsetX % (lineLength * 2);
@@ -228,14 +228,14 @@ function draw() {
     for (let i = -2; i < numLines; i++) {
         let drawX = i * lineLength - lineOffsetX;
 
-        // Röda och vita kantlinjer
+        // röd vita vägkanter
         let barrierColor = (Math.abs(i) % 2 === 0) ? "#FF0000" : "#FFFFFF";
         ctx.fillStyle = barrierColor;
         
         ctx.fillRect(drawX, roadYOffset + tileSize - 10, lineLength, 10);
         ctx.fillRect(drawX, roadYOffset + (7 * tileSize), lineLength, 10);
 
-        // Vita mittlinjer
+        // vita mittlinjer
         if (Math.abs(i) % 2 === 0) {
             ctx.fillStyle = "#FFFFFF";
             ctx.fillRect(drawX, roadYOffset + (4 * tileSize) - 3, lineLength / 1.5, 6);
@@ -253,7 +253,7 @@ function draw() {
         );
     }
 
-    // 5. Rita spelaren
+    // 5. rrita spelaren
     ctx.drawImage(
         playerImg, 
         player.x - player.size / 2, 
@@ -262,7 +262,7 @@ function draw() {
         player.size
     );
 
-    // 6. Game Over-skärm
+    // 6. game over
     if (isGameOver) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
