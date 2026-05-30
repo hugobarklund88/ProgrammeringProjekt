@@ -1,4 +1,7 @@
-// AUDIO SETTINGS
+let score = 0;
+let highscore = localStorage.getItem("moto_highscore") ? parseInt(localStorage.getItem("moto_highscore")) : 0;
+
+// ljud inställningar
 const bgMusic = new Audio('kevin.mp3');
 bgMusic.loop = true;     
 bgMusic.volume = 0.5;      
@@ -9,7 +12,7 @@ crashSound.volume = 0.7;
 // musik
     crashSound.pause();
     crashSound.currentTime = 0;
-    bgMusic.currentTime = 0; // Startar om låten från början (valfritt, ta bort om du vill att den fortsätter)
+    bgMusic.currentTime = 0; 
     bgMusic.play();
 
 // musik 2
@@ -98,6 +101,7 @@ function resetGame() {
     player.y = canvas.height / 2;
     player.vy = 0;
     roadOffsetX = 0; 
+    score = 0;
     isGameOver = false;
 }
 
@@ -151,6 +155,9 @@ function checkCollision(rect1, rect2) {
 function update() {
     if (isGameOver) return;
 
+    // poäng 1
+    score += 0.15; 
+
     // flytta vägposition
     roadOffsetX += player.speed;
 
@@ -180,7 +187,7 @@ function update() {
         }
 
         spawnTimer = 0;
-        nextSpawnTime = Math.random() * 40 + 30; 
+        nextSpawnTime = Math.random() * 30 + 20; 
     }
 
     // krockar
@@ -195,6 +202,13 @@ function update() {
             player.vy = 0;
             player.speed = 0; 
             isGameOver = true; 
+
+            // sparas  highscore
+            let finalScore = Math.floor(score);
+            if (finalScore > highscore) {
+                highscore = finalScore;
+                localStorage.setItem("moto_highscore", highscore);
+            }
             return;
         }
 
@@ -262,7 +276,7 @@ function draw() {
         player.size
     );
 
-    // 6. game over
+// 6. game over
     if (isGameOver) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -276,6 +290,18 @@ function draw() {
         ctx.font = "24px sans-serif";
         ctx.fillText("Tryck SPACE för att försöka igen", canvas.width / 2, canvas.height / 2 + 40);
     }
+
+    // poäng och highscore
+    ctx.textAlign = "left";
+    ctx.font = "bold 24px sans-serif";
+    
+    // rita poäng
+    ctx.fillStyle = "#FFFFFF"; 
+    ctx.fillText("SCORE: " + Math.floor(score), 30, 40);
+    
+    // rita highscore
+    ctx.fillStyle = "#FFD700"; 
+    ctx.fillText("HIGHSCORE: " + highscore, 30, 70);
 }
 
 function gameLoop() {
