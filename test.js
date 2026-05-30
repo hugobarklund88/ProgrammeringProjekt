@@ -50,7 +50,7 @@ spikeImg.src = 'trafficcone.png';
 const player = {
     x: 150,            
     y: 0,              
-    size: 90,         
+    size: 115,         
     vy: 0,             
     speed: 16,         
     accel: 1.8,        
